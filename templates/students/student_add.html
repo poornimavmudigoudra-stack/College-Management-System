@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Add Student{% endblock %}
+{% block content %}
+<a href="{% url 'students:list' %}" class="small"><i class="bi bi-arrow-left"></i> Back to students</a>
+{% include "includes/page_header.html" with title="Add New Student" icon="person-plus" subtitle="Creates the student's login account and admission record together." %}
+<form method="post" enctype="multipart/form-data" novalidate class="needs-validation">
+    {% csrf_token %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white"><strong>1. Login Account</strong></div>
+        <div class="card-body">{% include "includes/form.html" with form=user_form %}</div>
+    </div>
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white"><strong>2. Academic &amp; Personal Details</strong></div>
+        <div class="card-body">
+            {% include "includes/form.html" with form=student_form %}
+            <img id="photo-preview" class="profile-photo d-none" alt="Preview">
+        </div>
+    </div>
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary-cms"><i class="bi bi-save"></i> Save Student</button>
+        <a href="{% url 'students:list' %}" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}

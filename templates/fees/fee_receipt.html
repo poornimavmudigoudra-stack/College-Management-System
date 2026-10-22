@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static humanize %}
+{% block title %}Receipt {{ payment.receipt_number }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between mb-3 no-print">
+    <a href="{% url 'fees:payments' %}" class="small"><i class="bi bi-arrow-left"></i> Back to payments</a>
+    <button type="button" class="btn btn-primary-cms" onclick="window.print()"><i class="bi bi-printer"></i> Print Receipt</button>
+</div>
+
+<div class="receipt card shadow-sm mx-auto">
+    <div class="card-body p-4 p-md-5">
+        <div class="d-flex align-items-center border-bottom pb-3 mb-4">
+            <img src="{% static 'images/logo.png' %}" alt="Logo" width="64" height="64" class="me-3">
+            <div class="flex-grow-1">
+                <h1 class="h4 mb-0">College Management System</h1>
+                <div class="small text-muted">Fee Payment Receipt</div>
+            </div>
+            <div class="text-end">
+                <div class="small text-muted">Receipt No</div>
+                <div class="fw-bold">{{ payment.receipt_number }}</div>
+            </div>
+        </div>
+
+        <div class="row mb-4 small">
+            <div class="col-sm-6">
+                <div><span class="text-muted">Student:</span> <strong>{{ fee.student.full_name }}</strong></div>
+                <div><span class="text-muted">Roll No:</span> {{ fee.student.roll_number }}</div>
+                <div><span class="text-muted">Course:</span> {{ fee.student.course|default:"-" }} (Sem {{ fee.student.semester }})</div>
+            </div>
+            <div class="col-sm-6 text-sm-end">
+                <div><span class="text-muted">Payment Date:</span> {{ payment.payment_date|date:"d M Y" }}</div>
+                <div><span class="text-muted">Method:</span> {{ payment.get_method_display }}</div>
+                {% if payment.transaction_id %}<div><span class="text-muted">Transaction ID:</span> {{ payment.transaction_id }}</div>{% endif %}
+            </div>
+        </div>
+
+        <table class="table table-bordered">
+            <thead class="table-light"><tr><th>Description</th><th class="text-end">Amount (₹)</th></tr></thead>
+            <tbody>
+                <tr><td>{{ fee.get_fee_type_display }}{% if fee.description %} &mdash; {{ fee.description }}{% endif %}</td><td class="text-end">{{ fee.amount|intcomma }}</td></tr>
+                <tr><td class="text-end"><strong>Amount Paid (this receipt)</strong></td><td class="text-end"><strong>{{ payment.amount|intcomma }}</strong></td></tr>
+                <tr><td class="text-end text-muted">Total paid to date</td><td class="text-end text-muted">{{ fee.paid_amount|intcomma }}</td></tr>
+                <tr><td class="text-end text-muted">Balance remaining</td><td class="text-end text-muted">{{ fee.balance|intcomma }}</td></tr>
+            </tbody>
+        </table>
+        {% if payment.remarks %}<p class="small"><span class="text-muted">Remarks:</span> {{ payment.remarks }}</p>{% endif %}
+
+        <div class="d-flex justify-content-between align-items-end mt-5 small">
+            <div class="text-muted">Generated on {% now "d M Y, H:i" %}</div>
+            <div class="text-center">
+                <div class="signature-line"></div>
+                Received by {{ payment.received_by.display_name|default:"Accounts Office" }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

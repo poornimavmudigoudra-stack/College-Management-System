@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Add Faculty{% endblock %}
+{% block content %}
+<a href="{% url 'faculty:list' %}" class="small"><i class="bi bi-arrow-left"></i> Back to faculty</a>
+{% include "includes/page_header.html" with title="Add Faculty Member" icon="person-plus" subtitle="Creates the login account and the faculty record together." %}
+<form method="post" enctype="multipart/form-data" novalidate class="needs-validation">
+    {% csrf_token %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white"><strong>1. Login Account</strong></div>
+        <div class="card-body">{% include "includes/form.html" with form=user_form %}</div>
+    </div>
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white"><strong>2. Professional Details</strong></div>
+        <div class="card-body">
+            {% include "includes/form.html" with form=faculty_form %}
+            <img id="photo-preview" class="profile-photo d-none" alt="Preview">
+        </div>
+    </div>
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary-cms"><i class="bi bi-save"></i> Save Faculty</button>
+        <a href="{% url 'faculty:list' %}" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}

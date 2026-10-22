@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Attendance Records{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    {% include "includes/page_header.html" with title="Attendance Records" icon="calendar-check" %}
+    <div class="d-flex gap-2">
+        <a href="{% url 'attendance:report' %}" class="btn btn-outline-primary"><i class="bi bi-bar-chart"></i> Report</a>
+        {% if user.is_admin_user or user.is_faculty %}<a href="{% url 'attendance:mark' %}" class="btn btn-primary-cms"><i class="bi bi-check2-square"></i> Mark Attendance</a>{% endif %}
+    </div>
+</div>
+
+<form method="get" class="card card-body shadow-sm mb-3 filter-bar">
+    <div class="row g-2">
+        <div class="col-md-4">{{ form.subject }}</div>
+        <div class="col-md-3">{{ form.date }}</div>
+        <div class="col-md-3">{{ form.status }}</div>
+        <div class="col-md-2 d-flex gap-2">
+            <button class="btn btn-primary-cms flex-fill"><i class="bi bi-funnel"></i> Filter</button>
+            <a href="{% url 'attendance:list' %}" class="btn btn-outline-secondary" title="Reset"><i class="bi bi-x-lg"></i></a>
+        </div>
+    </div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-cms table-hover mb-0">
+            <thead><tr><th>Date</th><th>Roll No</th><th>Student</th><th>Subject</th><th>Status</th><th>Marked By</th></tr></thead>
+            <tbody>
+            {% for record in page_obj %}
+                <tr>
+                    <td>{{ record.date|date:"d M Y" }}</td>
+                    <td>{{ record.student.roll_number }}</td>
+                    <td>{{ record.student.full_name }}</td>
+                    <td>{{ record.subject.code }}</td>
+                    <td><span class="badge status-{{ record.status }}">{{ record.get_status_display }}</span></td>
+                    <td class="small text-muted">{{ record.marked_by.display_name|default:"-" }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6" class="text-center text-muted py-4">No attendance records found.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% include "includes/pagination.html" %}
+{% endblock %}

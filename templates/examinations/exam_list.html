@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Examinations{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    {% include "includes/page_header.html" with title="Exam Schedule" icon="pencil-square" %}
+    <div class="d-flex gap-2">
+        <a href="{% url 'examinations:results' %}" class="btn btn-outline-primary"><i class="bi bi-trophy"></i> Results</a>
+        {% if user.is_admin_user or user.is_faculty %}<a href="{% url 'examinations:add' %}" class="btn btn-primary-cms"><i class="bi bi-plus-lg"></i> Schedule Exam</a>{% endif %}
+    </div>
+</div>
+
+<ul class="nav nav-pills mb-3">
+    <li class="nav-item"><a class="nav-link {% if show == 'all' %}active{% endif %}" href="?show=all">All</a></li>
+    <li class="nav-item"><a class="nav-link {% if show == 'upcoming' %}active{% endif %}" href="?show=upcoming">Upcoming</a></li>
+    <li class="nav-item"><a class="nav-link {% if show == 'past' %}active{% endif %}" href="?show=past">Completed</a></li>
+</ul>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-cms table-hover mb-0 align-middle">
+            <thead><tr><th>Date</th><th>Exam</th><th>Type</th><th>Subject</th><th>Course / Sem</th><th>Max / Pass</th>{% if not user.is_student %}<th>Marks Entered</th><th class="text-end">Actions</th>{% endif %}</tr></thead>
+            <tbody>
+            {% for exam in exams %}
+                <tr>
+                    <td>{{ exam.date|date:"d M Y" }} {% if exam.date >= today %}<span class="badge bg-info">{{ exam.date|naturalday }}</span>{% endif %}</td>
+                    <td class="fw-medium">{{ exam.name }}</td>
+                    <td>{{ exam.get_exam_type_display }}</td>
+                    <td>{{ exam.subject.code }} - {{ exam.subject.name }}</td>
+                    <td>{{ exam.subject.course.code }} / {{ exam.subject.semester }}</td>
+                    <td>{{ exam.max_marks }} / {{ exam.pass_marks }}</td>
+                    {% if not user.is_student %}
+                        <td>{% if exam.num_marks %}<span class="badge bg-success">{{ exam.num_marks }}</span>{% else %}<span class="badge bg-secondary">None</span>{% endif %}</td>
+                        <td class="text-end text-nowrap">
+                            <a href="{% url 'examinations:marks_entry' exam.pk %}" class="btn btn-sm btn-outline-primary">Enter Marks</a>
+                            <a href="{% url 'examinations:results' %}?exam={{ exam.pk }}" class="btn btn-sm btn-outline-secondary">Results</a>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% empty %}
+                <tr><td colspan="8" class="text-center text-muted py-4">No exams found.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% comment %}
+Page title bar. Usage: {% include "includes/page_header.html" with title="Students" icon="mortarboard" subtitle="..." %}
+Action buttons can be placed in a {% block %} by the caller instead; this include only renders the title.
+{% endcomment %}
+<div class="page-header mb-4">
+    <h1 class="h3 mb-1"><i class="bi bi-{{ icon|default:'grid' }} text-primary-cms"></i> {{ title }}</h1>
+    {% if subtitle %}<p class="text-muted mb-0">{{ subtitle }}</p>{% endif %}
+</div>

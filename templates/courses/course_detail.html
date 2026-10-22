@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ course.name }}{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <div>
+        <a href="{% url 'courses:list' %}" class="small"><i class="bi bi-arrow-left"></i> Back to courses</a>
+        <h1 class="h3 mb-0">{{ course.name }} <span class="badge bg-primary-cms fs-6 align-middle">{{ course.code }}</span></h1>
+        <p class="text-muted mb-0">{{ course.department }} &middot; {{ course.duration_years }} years &middot; {{ student_count }} students enrolled</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'students:list' %}?course={{ course.pk }}" class="btn btn-outline-secondary"><i class="bi bi-people"></i> Students</a>
+        {% if user.is_admin_user %}
+            <a href="{% url 'courses:subject_add' %}?course={{ course.pk }}" class="btn btn-outline-primary"><i class="bi bi-plus-lg"></i> Add Subject</a>
+            <a href="{% url 'courses:edit' course.pk %}" class="btn btn-primary-cms"><i class="bi bi-pencil"></i> Edit Course</a>
+        {% endif %}
+    </div>
+</div>
+
+{% if course.description %}<div class="card card-body shadow-sm mb-4">{{ course.description|linebreaks }}</div>{% endif %}
+
+{% for semester, subjects in subjects_by_semester %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white"><strong>Semester {{ semester }}</strong> <span class="text-muted small">&middot; {{ subjects|length }} subject(s)</span></div>
+        <div class="table-responsive">
+            <table class="table table-cms mb-0 align-middle">
+                <thead><tr><th>Code</th><th>Subject</th><th>Credits</th><th>Faculty</th>{% if user.is_admin_user %}<th></th>{% endif %}</tr></thead>
+                <tbody>
+                {% for subject in subjects %}
+                    <tr>
+                        <td>{{ subject.code }}</td>
+                        <td>{{ subject.name }}</td>
+                        <td>{{ subject.credits }}</td>
+                        <td>{% if subject.faculty %}{{ subject.faculty.full_name }}{% else %}<span class="text-muted">Unassigned</span>{% endif %}</td>
+                        {% if user.is_admin_user %}<td class="text-end"><a href="{% url 'courses:subject_edit' subject.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a></td>{% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% empty %}
+    <div class="alert alert-light border text-center">No subjects have been added to this course yet.</div>
+{% endfor %}
+{% endblock %}

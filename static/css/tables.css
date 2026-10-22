@@ -1,0 +1,26 @@
+/* ===== Tables ===== */
+.table-cms { --bs-table-bg: #fff; margin-bottom: 0; }
+.table-cms thead th {
+    background-color: #f1f3f9;
+    color: #495057;
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 0;
+    white-space: nowrap;
+    padding: 0.75rem;
+}
+.table-cms td { padding: 0.7rem 0.75rem; border-color: #eef0f5; vertical-align: middle; }
+.table-cms tbody tr:last-child td { border-bottom: 0; }
+.table-hover.table-cms tbody tr:hover > * { --bs-table-bg-state: #f7f9ff; }
+
+/* Attendance status badges */
+.status-P { background-color: #2b8a3e; }
+.status-A { background-color: #c92a2a; }
+.status-L { background-color: #f08c00; }
+
+.progress { height: 1.1rem; border-radius: 1rem; background-color: #eef0f5; }
+.progress-bar { font-size: 0.7rem; }
+
+.pagination .page-link { color: var(--cms-primary); }

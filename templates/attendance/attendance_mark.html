@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Mark Attendance{% endblock %}
+{% block content %}
+{% include "includes/page_header.html" with title="Mark Attendance" icon="check2-square" subtitle="Choose a subject and date, then mark each student." %}
+
+<form method="get" class="card card-body shadow-sm mb-4 filter-bar">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-6">
+            <label class="form-label" for="subject-select">Subject</label>
+            <select name="subject" id="subject-select" class="form-select" required>
+                <option value="">Select subject</option>
+                {% for s in subjects %}<option value="{{ s.pk }}" {% if subject.pk == s.pk %}selected{% endif %}>{{ s.code }} - {{ s.name }} ({{ s.course.code }}, Sem {{ s.semester }})</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="date-input">Date</label>
+            <input type="date" name="date" id="date-input" value="{{ att_date|date:'Y-m-d' }}" max="{% now 'Y-m-d' %}" class="form-control">
+        </div>
+        <div class="col-md-2"><button class="btn btn-primary-cms w-100">Load Students</button></div>
+    </div>
+    {% if not subjects %}<div class="text-muted small mt-2">You have no subjects assigned.</div>{% endif %}
+</form>
+
+{% if subject %}
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="subject" value="{{ subject.pk }}">
+    <input type="hidden" name="date" value="{{ att_date|date:'Y-m-d' }}">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+                <strong>{{ subject.code }} - {{ subject.name }}</strong>
+                <span class="text-muted small">&middot; {{ att_date|date:"l, d M Y" }} &middot; {{ rows|length }} students</span>
+                {% if already_marked %}<span class="badge bg-info ms-2">Already marked &mdash; saving will update</span>{% endif %}
+            </div>
+            <div class="btn-group btn-group-sm" role="group" aria-label="Mark all">
+                <button type="button" class="btn btn-outline-success" data-mark-all="P">All Present</button>
+                <button type="button" class="btn btn-outline-danger" data-mark-all="A">All Absent</button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-cms mb-0 align-middle">
+                <thead><tr><th>#</th><th>Roll No</th><th>Student</th><th class="text-center">Status</th></tr></thead>
+                <tbody>
+                {% for student, current in rows %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ student.roll_number }}</td>
+                        <td>{{ student.full_name }}</td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm attendance-toggle" role="group">
+                                {% for value, label in status_choices %}
+                                    <input type="radio" class="btn-check" name="status_{{ student.pk }}" id="st{{ student.pk }}{{ value }}" value="{{ value }}" {% if value == current %}checked{% endif %} autocomplete="off">
+                                    <label class="btn btn-outline-{% if value == 'P' %}success{% elif value == 'A' %}danger{% else %}warning{% endif %}" for="st{{ student.pk }}{{ value }}">{{ label }}</label>
+                                {% endfor %}
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="4" class="text-center text-muted py-4">No students are enrolled in {{ subject.course.code }} semester {{ subject.semester }}.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if rows %}
+            <div class="card-footer bg-white text-end"><button type="submit" class="btn btn-primary-cms"><i class="bi bi-save"></i> Save Attendance</button></div>
+        {% endif %}
+    </div>
+</form>
+{% endif %}
+{% endblock %}

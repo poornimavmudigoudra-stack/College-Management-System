@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+{# Shared by "Edit Course" and "Edit Subject" #}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <a href="{% if object.course_id %}{% url 'courses:detail' object.course_id %}{% else %}{% url 'courses:detail' object.pk %}{% endif %}" class="small"><i class="bi bi-arrow-left"></i> Back to course</a>
+        {% include "includes/page_header.html" with title=title icon="pencil-square" %}
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="post" novalidate class="needs-validation">
+                    {% csrf_token %}
+                    {% include "includes/form.html" with form=form %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary-cms"><i class="bi bi-save"></i> Update</button>
+                        <a href="{% url 'courses:list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

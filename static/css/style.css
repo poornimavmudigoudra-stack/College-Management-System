@@ -1,0 +1,102 @@
+/* ===== Base theme ===== */
+:root {
+    --cms-primary: #1e3a8a;
+    --cms-primary-dark: #0f2043;
+    --cms-primary-light: #3b5bdb;
+    --cms-accent: #f59f00;
+    --cms-bg: #f4f6fb;
+    --cms-text: #212529;
+    --cms-muted: #6c757d;
+    --cms-radius: 0.75rem;
+}
+
+body {
+    font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--cms-bg);
+    color: var(--cms-text);
+    font-size: 0.95rem;
+}
+
+a { color: var(--cms-primary-light); }
+a:hover { color: var(--cms-primary); }
+
+.text-primary-cms { color: var(--cms-primary) !important; }
+.bg-primary-cms { background-color: var(--cms-primary) !important; }
+
+.btn-primary-cms {
+    background-color: var(--cms-primary);
+    border-color: var(--cms-primary);
+    color: #fff;
+}
+.btn-primary-cms:hover,
+.btn-primary-cms:focus,
+.btn-primary-cms.active {
+    background-color: var(--cms-primary-dark);
+    border-color: var(--cms-primary-dark);
+    color: #fff;
+}
+
+.nav-pills .nav-link.active { background-color: var(--cms-primary); }
+
+/* ===== Navbar ===== */
+.navbar-cms { background: linear-gradient(90deg, var(--cms-primary-dark), var(--cms-primary)); }
+.navbar-cms .nav-link { color: rgba(255, 255, 255, 0.85); border-radius: 0.5rem; padding-inline: 0.75rem !important; }
+.navbar-cms .nav-link:hover,
+.navbar-cms .nav-link.active { color: #fff; background-color: rgba(255, 255, 255, 0.12); }
+.navbar-cms .dropdown-menu { border: 0; box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.12); border-radius: var(--cms-radius); }
+
+/* ===== Avatars & photos ===== */
+.avatar-sm,
+.avatar-lg {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: var(--cms-accent);
+    color: #fff;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+.avatar-sm { width: 32px; height: 32px; font-size: 0.85rem; }
+.avatar-lg { width: 110px; height: 110px; font-size: 2.5rem; background-color: var(--cms-primary); }
+.avatar-img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.profile-photo { width: 130px; height: 130px; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.12); }
+
+/* ===== Cards ===== */
+.card { border: 0; border-radius: var(--cms-radius); }
+.card-header { border-bottom: 1px solid #eef0f5; border-top-left-radius: var(--cms-radius) !important; border-top-right-radius: var(--cms-radius) !important; }
+.card-footer { border-top: 1px solid #eef0f5; }
+.course-card { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.course-card:hover { transform: translateY(-3px); box-shadow: 0 0.75rem 1.5rem rgba(30, 58, 138, 0.12) !important; }
+
+/* ===== Home page ===== */
+.hero { background-size: cover; background-position: center; padding: 3rem 0; }
+.stat-card { background: #fff; border-radius: var(--cms-radius); padding: 1.25rem; box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.06); }
+.stat-card .stat-value { font-size: 2rem; font-weight: 700; color: var(--cms-primary); }
+.stat-card .stat-label { color: var(--cms-muted); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+.feature-card { background: #fff; border-radius: var(--cms-radius); padding: 1.25rem; height: 100%; box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.06); }
+.feature-card i { font-size: 1.75rem; color: var(--cms-primary); display: block; margin-bottom: 0.5rem; }
+.feature-card p { color: var(--cms-muted); margin-bottom: 0; font-size: 0.875rem; }
+
+/* ===== Notices ===== */
+.notice-card { border-left: 4px solid var(--cms-primary-light); }
+.notice-important { border-left: 4px solid #dc3545 !important; }
+.notice-content { font-size: 1rem; line-height: 1.7; }
+
+/* ===== Error pages ===== */
+.error-page .error-code { font-size: 6rem; font-weight: 700; color: var(--cms-primary); line-height: 1; }
+
+/* ===== Receipt ===== */
+.receipt { max-width: 800px; }
+.signature-line { width: 180px; border-top: 1px solid #333; margin: 0 auto 0.25rem; }
+
+/* ===== Footer ===== */
+.footer-cms { background-color: var(--cms-primary-dark); color: rgba(255, 255, 255, 0.75); }
+
+/* ===== Print ===== */
+@media print {
+    .no-print, .navbar, footer { display: none !important; }
+    body { background: #fff; }
+    .card { box-shadow: none !important; }
+    main { padding: 0 !important; }
+}

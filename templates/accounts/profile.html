@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+{% include "includes/page_header.html" with title="My Profile" icon="person-circle" %}
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm text-center">
+            <div class="card-body">
+                {% if student.photo %}
+                    <img src="{{ student.photo.url }}" alt="Photo" class="profile-photo mb-3">
+                {% elif faculty.photo %}
+                    <img src="{{ faculty.photo.url }}" alt="Photo" class="profile-photo mb-3">
+                {% else %}
+                    <div class="avatar-lg mx-auto mb-3">{{ user.display_name|first|upper }}</div>
+                {% endif %}
+                <h2 class="h5 mb-0">{{ user.display_name }}</h2>
+                <p class="text-muted mb-2">@{{ user.username }}</p>
+                <span class="badge bg-primary-cms">{{ user.get_role_display }}</span>
+            </div>
+            <ul class="list-group list-group-flush text-start small">
+                {% if student %}
+                    <li class="list-group-item"><strong>Roll No:</strong> {{ student.roll_number }}</li>
+                    <li class="list-group-item"><strong>Course:</strong> {{ student.course|default:"-" }}</li>
+                    <li class="list-group-item"><strong>Semester:</strong> {{ student.semester }}</li>
+                    <li class="list-group-item"><a href="{% url 'students:detail' student.pk %}">View full student record &rarr;</a></li>
+                {% elif faculty %}
+                    <li class="list-group-item"><strong>Employee ID:</strong> {{ faculty.employee_id }}</li>
+                    <li class="list-group-item"><strong>Department:</strong> {{ faculty.department|default:"-" }}</li>
+                    <li class="list-group-item"><strong>Designation:</strong> {{ faculty.get_designation_display }}</li>
+                {% endif %}
+                <li class="list-group-item"><strong>Member since:</strong> {{ user.date_joined|date:"d M Y" }}</li>
+                <li class="list-group-item"><strong>Last login:</strong> {{ user.last_login|date:"d M Y, H:i"|default:"-" }}</li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white"><strong>Edit Personal Details</strong></div>
+            <div class="card-body">
+                <form method="post" novalidate class="needs-validation">
+                    {% csrf_token %}
+                    {% include "includes/form.html" with form=form %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary-cms"><i class="bi bi-save"></i> Save Changes</button>
+                        <a href="{% url 'accounts:change_password' %}" class="btn btn-outline-secondary"><i class="bi bi-key"></i> Change Password</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

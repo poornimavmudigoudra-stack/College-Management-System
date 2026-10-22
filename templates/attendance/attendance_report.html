@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Attendance Report{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <div class="page-header mb-4">
+        <h1 class="h3 mb-1"><i class="bi bi-bar-chart text-primary-cms"></i> Attendance Report</h1>
+        <p class="text-muted mb-0">Attendance below {{ threshold }}% is highlighted as a shortage.</p>
+    </div>
+    <button type="button" class="btn btn-outline-secondary no-print" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
+</div>
+
+{% if user.is_student %}
+    {% if not student %}
+        <div class="alert alert-info">Your account is not linked to a student record yet.</div>
+    {% else %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-body d-flex flex-wrap justify-content-between gap-3">
+                <div><div class="text-muted small">Student</div><strong>{{ student.full_name }} ({{ student.roll_number }})</strong></div>
+                <div><div class="text-muted small">Classes Attended</div><strong>{{ overall.present }} / {{ overall.total }}</strong></div>
+                <div><div class="text-muted small">Overall</div><strong class="{% if overall.total and overall.percentage < threshold %}text-danger{% else %}text-success{% endif %}">{{ overall.percentage }}%</strong></div>
+            </div>
+        </div>
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-cms mb-0 align-middle">
+                    <thead><tr><th>Subject</th><th>Present</th><th>Absent</th><th>Total</th><th style="width: 30%">Percentage</th></tr></thead>
+                    <tbody>
+                    {% for subject, s in student_rows %}
+                        <tr class="{% if s.total and s.percentage < threshold %}table-danger{% endif %}">
+                            <td>{{ subject.code }} - {{ subject.name }}</td><td>{{ s.present }}</td><td>{{ s.absent }}</td><td>{{ s.total }}</td>
+                            <td><div class="progress"><div class="progress-bar {% if s.percentage < threshold %}bg-danger{% else %}bg-success{% endif %}" style="width: {{ s.percentage }}%">{{ s.percentage }}%</div></div></td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="5" class="text-center text-muted py-4">No subjects found.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+{% else %}
+    <form method="get" class="card card-body shadow-sm mb-4 filter-bar no-print">
+        <div class="row g-2">
+            <div class="col-md-10">
+                <select name="subject" class="form-select" required>
+                    <option value="">Select subject</option>
+                    {% for s in subjects %}<option value="{{ s.pk }}" {% if subject.pk == s.pk %}selected{% endif %}>{{ s.code }} - {{ s.name }} ({{ s.course.code }}, Sem {{ s.semester }})</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2"><button class="btn btn-primary-cms w-100">View Report</button></div>
+        </div>
+    </form>
+
+    {% if subject %}
+        <div class="row g-3 mb-4">
+            <div class="col-md-4"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Subject</div><strong>{{ subject.code }} - {{ subject.name }}</strong></div></div></div>
+            <div class="col-md-4"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Classes Held</div><strong>{{ classes_held }}</strong></div></div></div>
+            <div class="col-md-4"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Students with Shortage</div><strong class="text-danger">{{ shortage_count }}</strong></div></div></div>
+        </div>
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-cms mb-0 align-middle">
+                    <thead><tr><th>Roll No</th><th>Student</th><th>Present</th><th>Absent</th><th>Total</th><th style="width: 30%">Percentage</th></tr></thead>
+                    <tbody>
+                    {% for r in rows %}
+                        <tr class="{% if r.total and r.percentage < threshold %}table-danger{% endif %}">
+                            <td>{{ r.student.roll_number }}</td><td>{{ r.student.full_name }}</td>
+                            <td>{{ r.present }}</td><td>{{ r.absent }}</td><td>{{ r.total }}</td>
+                            <td><div class="progress"><div class="progress-bar {% if r.percentage < threshold %}bg-danger{% else %}bg-success{% endif %}" style="width: {{ r.percentage }}%">{{ r.percentage }}%</div></div></td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="6" class="text-center text-muted py-4">No students enrolled.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+{% endif %}
+{% endblock %}

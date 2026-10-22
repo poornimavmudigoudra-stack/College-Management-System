@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{ notice.title }}{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <a href="{% url 'notices:list' %}" class="small"><i class="bi bi-arrow-left"></i> Back to notices</a>
+        <div class="card shadow-sm mt-2 {% if notice.is_important %}notice-important{% endif %}">
+            <div class="card-body p-4 p-md-5">
+                <div class="d-flex flex-wrap justify-content-between gap-2 mb-2">
+                    <h1 class="h3 mb-0">{{ notice.title }}</h1>
+                    <div>
+                        {% if notice.is_important %}<span class="badge bg-danger">Important</span>{% endif %}
+                        <span class="badge bg-light text-dark border">For: {{ notice.get_audience_display }}</span>
+                    </div>
+                </div>
+                <p class="small text-muted border-bottom pb-3">
+                    Posted by {{ notice.posted_by.display_name|default:"Admin" }} on {{ notice.created_at|date:"d M Y, H:i" }}
+                    {% if notice.updated_at|date:"YmdHi" != notice.created_at|date:"YmdHi" %}&middot; updated {{ notice.updated_at|date:"d M Y" }}{% endif %}
+                </p>
+                <div class="notice-content">{{ notice.content|linebreaks }}</div>
+                {% if can_delete %}
+                    <form method="post" action="{% url 'notices:delete' notice.pk %}" class="mt-4 text-end" data-confirm="Delete this notice?">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> Delete Notice</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

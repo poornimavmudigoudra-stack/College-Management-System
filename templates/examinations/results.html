@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Results{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    {% include "includes/page_header.html" with title="Exam Results" icon="trophy" %}
+    <button type="button" class="btn btn-outline-secondary no-print" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
+</div>
+
+{% if user.is_student %}
+    {% if not student %}
+        <div class="alert alert-info">Your account is not linked to a student record yet.</div>
+    {% else %}
+        <div class="row g-3 mb-4">
+            <div class="col-md-4"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Exams Taken</div><div class="h4 mb-0">{{ marks|length }}</div></div></div></div>
+            <div class="col-md-4"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Passed</div><div class="h4 mb-0 text-success">{{ passed }}</div></div></div></div>
+            <div class="col-md-4"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Average</div><div class="h4 mb-0">{{ average }}%</div></div></div></div>
+        </div>
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-cms mb-0">
+                    <thead><tr><th>Date</th><th>Exam</th><th>Subject</th><th>Marks</th><th>%</th><th>Grade</th><th>Result</th><th>Remarks</th></tr></thead>
+                    <tbody>
+                    {% for m in marks %}
+                        <tr>
+                            <td>{{ m.exam.date|date:"d M Y" }}</td><td>{{ m.exam.name }}</td><td>{{ m.exam.subject.code }} - {{ m.exam.subject.name }}</td>
+                            <td>{{ m.marks_obtained|floatformat:"-2" }} / {{ m.exam.max_marks }}</td><td>{{ m.percentage }}</td>
+                            <td><strong>{{ m.grade }}</strong></td>
+                            <td>{% if m.is_pass %}<span class="badge bg-success">Pass</span>{% else %}<span class="badge bg-danger">Fail</span>{% endif %}</td>
+                            <td class="small">{{ m.remarks }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="8" class="text-center text-muted py-4">No results published yet.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+{% else %}
+    <form method="get" class="card card-body shadow-sm mb-4 filter-bar no-print">
+        <div class="row g-2">
+            <div class="col-md-10">
+                <select name="exam" class="form-select" required>
+                    <option value="">Select exam</option>
+                    {% for e in exams %}<option value="{{ e.pk }}" {% if exam.pk == e.pk %}selected{% endif %}>{{ e.date|date:"d M Y" }} &middot; {{ e.name }} &middot; {{ e.subject.code }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2"><button class="btn btn-primary-cms w-100">View</button></div>
+        </div>
+    </form>
+
+    {% if exam %}
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Appeared</div><div class="h5 mb-0">{{ exam_marks|length }}</div></div></div></div>
+            <div class="col-6 col-md-3"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Passed</div><div class="h5 mb-0 text-success">{{ pass_count }}</div></div></div></div>
+            <div class="col-6 col-md-3"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Average</div><div class="h5 mb-0">{{ stats.avg|floatformat:1|default:"-" }}</div></div></div></div>
+            <div class="col-6 col-md-3"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Highest / Lowest</div><div class="h5 mb-0">{{ stats.high|floatformat:"-2"|default:"-" }} / {{ stats.low|floatformat:"-2"|default:"-" }}</div></div></div></div>
+        </div>
+        <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <strong>{{ exam.name }} &middot; {{ exam.subject.code }} &middot; {{ exam.date|date:"d M Y" }}</strong>
+                <a href="{% url 'examinations:marks_entry' exam.pk %}" class="btn btn-sm btn-outline-primary no-print">Edit Marks</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-cms mb-0">
+                    <thead><tr><th>Rank</th><th>Roll No</th><th>Student</th><th>Marks</th><th>%</th><th>Grade</th><th>Result</th></tr></thead>
+                    <tbody>
+                    {% for m in exam_marks %}
+                        <tr class="{% if not m.is_pass %}table-danger{% endif %}">
+                            <td>{{ forloop.counter }}</td><td>{{ m.student.roll_number }}</td><td>{{ m.student.full_name }}</td>
+                            <td>{{ m.marks_obtained|floatformat:"-2" }} / {{ exam.max_marks }}</td><td>{{ m.percentage }}</td>
+                            <td><strong>{{ m.grade }}</strong></td>
+                            <td>{% if m.is_pass %}<span class="badge bg-success">Pass</span>{% else %}<span class="badge bg-danger">Fail</span>{% endif %}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="7" class="text-center text-muted py-4">No marks entered for this exam yet.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+{% endif %}
+{% endblock %}

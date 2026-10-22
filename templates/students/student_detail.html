@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}{{ student.full_name }}{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <div>
+        {% if user.is_admin_user or user.is_faculty %}<a href="{% url 'students:list' %}" class="small"><i class="bi bi-arrow-left"></i> Back to students</a>{% endif %}
+        <h1 class="h3 mb-0">{{ student.full_name }}</h1>
+    </div>
+    {% if user.is_admin_user %}
+        <div class="d-flex gap-2">
+            <a href="{% url 'students:edit' student.pk %}" class="btn btn-outline-primary"><i class="bi bi-pencil"></i> Edit</a>
+            <a href="{% url 'students:delete' student.pk %}" class="btn btn-outline-danger"><i class="bi bi-trash"></i> Delete</a>
+        </div>
+    {% endif %}
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                {% if student.photo %}<img src="{{ student.photo.url }}" alt="Photo" class="profile-photo mb-3">{% else %}<div class="avatar-lg mx-auto mb-3">{{ student.full_name|first|upper }}</div>{% endif %}
+                <h2 class="h5 mb-0">{{ student.full_name }}</h2>
+                <p class="text-muted mb-0">{{ student.roll_number }}</p>
+            </div>
+            <ul class="list-group list-group-flush small">
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Course</span><span>{{ student.course|default:"-" }}</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Department</span><span>{{ student.course.department|default:"-" }}</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Semester</span><span>{{ student.semester }}</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Gender</span><span>{{ student.get_gender_display|default:"-" }}</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Date of Birth</span><span>{{ student.date_of_birth|date:"d M Y"|default:"-" }}</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Email</span><span>{{ student.user.email|default:"-" }}</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Phone</span><span>{{ student.phone|default:"-" }}</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Guardian</span><span>{{ student.guardian_name|default:"-" }} {% if student.guardian_phone %}({{ student.guardian_phone }}){% endif %}</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Admitted</span><span>{{ student.admission_date|date:"d M Y" }}</span></li>
+                <li class="list-group-item"><span class="text-muted">Address</span><div>{{ student.address|default:"-"|linebreaksbr }}</div></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white d-flex justify-content-between">
+                <strong>Attendance</strong>
+                <span>Overall: <span class="badge {% if attendance.total and attendance.percentage < threshold %}bg-danger{% else %}bg-success{% endif %}">{{ attendance.percentage }}%</span> ({{ attendance.present }}/{{ attendance.total }})</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-cms mb-0">
+                    <thead><tr><th>Subject</th><th>Present</th><th>Total</th><th style="width: 35%">Percentage</th></tr></thead>
+                    <tbody>
+                    {% for subject, summary in subject_attendance %}
+                        <tr>
+                            <td>{{ subject.code }} - {{ subject.name }}</td>
+                            <td>{{ summary.present }}</td>
+                            <td>{{ summary.total }}</td>
+                            <td>
+                                <div class="progress" role="progressbar" aria-valuenow="{{ summary.percentage }}" aria-valuemin="0" aria-valuemax="100">
+                                    <div class="progress-bar {% if summary.percentage < threshold %}bg-danger{% else %}bg-success{% endif %}" style="width: {{ summary.percentage }}%">{{ summary.percentage }}%</div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="4" class="text-muted text-center">No subjects for the current semester.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white"><strong>Recent Exam Results</strong></div>
+            <div class="table-responsive">
+                <table class="table table-cms mb-0">
+                    <thead><tr><th>Exam</th><th>Subject</th><th>Date</th><th>Marks</th><th>%</th><th>Grade</th></tr></thead>
+                    <tbody>
+                    {% for mark in marks %}
+                        <tr>
+                            <td>{{ mark.exam.name }}</td><td>{{ mark.exam.subject.code }}</td><td>{{ mark.exam.date|date:"d M Y" }}</td>
+                            <td>{{ mark.marks_obtained|floatformat:"-2" }} / {{ mark.exam.max_marks }}</td><td>{{ mark.percentage }}</td>
+                            <td><span class="badge {% if mark.is_pass %}bg-success{% else %}bg-danger{% endif %}">{{ mark.grade }}</span></td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="6" class="text-muted text-center">No marks recorded.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% if user.is_admin_user or user == student.user %}
+        <div class="card shadow-sm">
+            <div class="card-header bg-white"><strong>Fees</strong></div>
+            <div class="table-responsive">
+                <table class="table table-cms mb-0">
+                    <thead><tr><th>Type</th><th>Due Date</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Status</th></tr></thead>
+                    <tbody>
+                    {% for fee in fees %}
+                        <tr>
+                            <td>{{ fee.get_fee_type_display }}</td><td>{{ fee.due_date|date:"d M Y" }}</td>
+                            <td>₹{{ fee.amount|intcomma }}</td><td>₹{{ fee.paid_amount|intcomma }}</td><td>₹{{ fee.balance|intcomma }}</td>
+                            <td>{% include "fees/_status_badge.html" %}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="6" class="text-muted text-center">No fees assigned.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

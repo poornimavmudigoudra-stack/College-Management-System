@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Marks Entry - {{ exam.name }}{% endblock %}
+{% block content %}
+<a href="{% url 'examinations:list' %}" class="small"><i class="bi bi-arrow-left"></i> Back to exams</a>
+{% include "includes/page_header.html" with title="Marks Entry" icon="clipboard-data" %}
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body d-flex flex-wrap justify-content-between gap-3">
+        <div><div class="text-muted small">Exam</div><strong>{{ exam.name }}</strong> ({{ exam.get_exam_type_display }})</div>
+        <div><div class="text-muted small">Subject</div><strong>{{ exam.subject.code }} - {{ exam.subject.name }}</strong></div>
+        <div><div class="text-muted small">Date</div><strong>{{ exam.date|date:"d M Y" }}</strong></div>
+        <div><div class="text-muted small">Max / Pass Marks</div><strong>{{ exam.max_marks }} / {{ exam.pass_marks }}</strong></div>
+    </div>
+</div>
+
+<form method="post" novalidate>
+    {% csrf_token %}
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-cms mb-0 align-middle">
+                <thead><tr><th>#</th><th>Roll No</th><th>Student</th><th style="width: 160px">Marks (/{{ exam.max_marks }})</th><th>Remarks</th></tr></thead>
+                <tbody>
+                {% for student, mark in rows %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ student.roll_number }}</td>
+                        <td>{{ student.full_name }}</td>
+                        <td>
+                            <input type="number" name="marks_{{ student.pk }}" class="form-control form-control-sm marks-input"
+                                   min="0" max="{{ exam.max_marks }}" step="0.5" data-pass="{{ exam.pass_marks }}"
+                                   value="{% if mark %}{{ mark.marks_obtained|floatformat:'-2' }}{% endif %}">
+                        </td>
+                        <td><input type="text" name="remarks_{{ student.pk }}" class="form-control form-control-sm" maxlength="200" value="{{ mark.remarks|default:'' }}"></td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="5" class="text-center text-muted py-4">No students enrolled in {{ exam.subject.course.code }} semester {{ exam.subject.semester }}.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if rows %}
+            <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+                <span class="small text-muted">Leave a field empty to skip that student.</span>
+                <button type="submit" class="btn btn-primary-cms"><i class="bi bi-save"></i> Save Marks</button>
+            </div>
+        {% endif %}
+    </div>
+</form>
+{% endblock %}

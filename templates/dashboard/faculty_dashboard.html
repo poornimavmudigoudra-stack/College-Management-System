@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Faculty Dashboard{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <div>
+        <h1 class="h3 mb-0">Welcome, {{ user.display_name }}</h1>
+        <p class="text-muted mb-0">{% if faculty %}{{ faculty.get_designation_display }} &middot; {{ faculty.department|default:"" }}{% else %}Faculty profile not set up yet{% endif %}</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'attendance:mark' %}" class="btn btn-primary-cms btn-sm"><i class="bi bi-calendar-check"></i> Mark Attendance</a>
+        <a href="{% url 'examinations:add' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil-square"></i> Schedule Exam</a>
+        <a href="{% url 'notices:add' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-megaphone"></i> Post Notice</a>
+    </div>
+</div>
+
+{% if not faculty %}
+    <div class="alert alert-warning">Your login is not linked to a faculty record yet. Please contact the administrator.</div>
+{% endif %}
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-4"><div class="dash-card dash-blue"><div><div class="dash-value">{{ subjects|length }}</div><div class="dash-label">Subjects Assigned</div></div><i class="bi bi-book"></i></div></div>
+    <div class="col-6 col-lg-4"><div class="dash-card dash-orange"><div><div class="dash-value">{{ upcoming_exams|length }}</div><div class="dash-label">Upcoming Exams</div></div><i class="bi bi-calendar-event"></i></div></div>
+    <div class="col-12 col-lg-4"><div class="dash-card dash-purple"><div><div class="dash-value">{{ pending_marks }}</div><div class="dash-label">Exams Awaiting Marks</div></div><i class="bi bi-clipboard-data"></i></div></div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white"><strong>My Subjects</strong> <span class="small text-muted">&middot; today's attendance status</span></div>
+            <div class="table-responsive">
+                <table class="table table-cms mb-0 align-middle">
+                    <thead><tr><th>Code</th><th>Subject</th><th>Course / Sem</th><th>Today</th><th></th></tr></thead>
+                    <tbody>
+                    {% for subject in subjects %}
+                        <tr>
+                            <td>{{ subject.code }}</td>
+                            <td>{{ subject.name }}</td>
+                            <td>{{ subject.course.code }} / {{ subject.semester }}</td>
+                            <td>{% if subject.marked_today %}<span class="badge bg-success">Marked</span>{% else %}<span class="badge bg-secondary">Pending</span>{% endif %}</td>
+                            <td class="text-end"><a href="{% url 'attendance:mark' %}?subject={{ subject.pk }}&date={{ today|date:'Y-m-d' }}" class="btn btn-sm btn-outline-primary">Mark</a></td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="5" class="text-muted text-center">No subjects assigned.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white"><strong>Upcoming Exams</strong></div>
+            <ul class="list-group list-group-flush">
+                {% for exam in upcoming_exams %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div><strong>{{ exam.name }}</strong> &middot; {{ exam.subject.code }}<div class="small text-muted">{{ exam.date|date:"D, d M Y" }}</div></div>
+                        <a href="{% url 'examinations:marks_entry' exam.pk %}" class="btn btn-sm btn-outline-secondary">Marks</a>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-muted">No upcoming exams.</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between"><strong>Notices</strong><a href="{% url 'notices:list' %}" class="small">View all</a></div>
+            <ul class="list-group list-group-flush">
+                {% for notice in notices %}
+                    <li class="list-group-item"><a href="{% url 'notices:detail' notice.pk %}">{{ notice.title }}</a><div class="small text-muted">{{ notice.created_at|naturaltime }}</div></li>
+                {% empty %}
+                    <li class="list-group-item text-muted">No notices.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

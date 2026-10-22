@@ -1,0 +1,24 @@
+/* ===== Responsive tweaks ===== */
+@media (max-width: 991.98px) {
+    .navbar-cms .navbar-nav .nav-link { padding: 0.5rem 0.75rem !important; }
+    .navbar-cms .dropdown-menu { box-shadow: none; background-color: rgba(255, 255, 255, 0.95); }
+}
+
+@media (max-width: 767.98px) {
+    body { font-size: 0.9rem; }
+    .hero { padding: 1.5rem 0; }
+    .hero .display-5 { font-size: 1.9rem; }
+    .dash-card { padding: 1rem; }
+    .dash-card .dash-value { font-size: 1.35rem; }
+    .dash-card i { font-size: 1.75rem; }
+    .stat-card .stat-value { font-size: 1.5rem; }
+    .error-page .error-code { font-size: 4rem; }
+    .attendance-toggle .btn { min-width: 0; padding-inline: 0.4rem; }
+    .profile-photo { width: 100px; height: 100px; }
+}
+
+@media (max-width: 575.98px) {
+    main.container-fluid { padding-inline: 0.75rem; }
+    .page-header h1 { font-size: 1.3rem; }
+    .table-cms td, .table-cms th { padding: 0.5rem; }
+}

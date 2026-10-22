@@ -1,0 +1,33 @@
+/* ===== Forms ===== */
+.form-label { font-weight: 500; font-size: 0.875rem; margin-bottom: 0.3rem; }
+
+.form-control,
+.form-select {
+    border-radius: 0.5rem;
+    border-color: #dde1ea;
+    padding: 0.5rem 0.75rem;
+}
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--cms-primary-light);
+    box-shadow: 0 0 0 0.2rem rgba(59, 91, 219, 0.15);
+}
+.form-control.is-invalid,
+.form-select.is-invalid { border-color: #dc3545; }
+
+.form-text ul { padding-left: 1.1rem; margin-bottom: 0; }
+.input-group-text { background-color: #f1f3f9; border-color: #dde1ea; }
+
+/* Filter bar above lists */
+.filter-bar { padding: 0.85rem; }
+
+/* Auth pages */
+.auth-wrapper { display: flex; justify-content: center; align-items: center; min-height: 65vh; }
+.auth-card { width: 100%; max-width: 440px; }
+.auth-card-wide { max-width: 760px; }
+
+/* Attendance toggle buttons */
+.attendance-toggle .btn { min-width: 72px; }
+
+/* Marks entry: highlight failing marks */
+.marks-input.below-pass { border-color: #dc3545; background-color: #fff5f5; }

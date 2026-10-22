@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Schedule Exam{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <a href="{% url 'examinations:list' %}" class="small"><i class="bi bi-arrow-left"></i> Back to exams</a>
+        {% include "includes/page_header.html" with title="Schedule Exam" icon="calendar-plus" %}
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="post" novalidate class="needs-validation">
+                    {% csrf_token %}
+                    {% include "includes/form.html" with form=form %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary-cms"><i class="bi bi-save"></i> Save Exam</button>
+                        <a href="{% url 'examinations:list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}{{ member.full_name }}{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <div>
+        <a href="{% url 'faculty:list' %}" class="small"><i class="bi bi-arrow-left"></i> Back to faculty</a>
+        <h1 class="h3 mb-0">{{ member.full_name }}</h1>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'faculty:edit' member.pk %}" class="btn btn-outline-primary"><i class="bi bi-pencil"></i> Edit</a>
+        <form method="post" action="{% url 'faculty:delete' member.pk %}" data-confirm="Delete {{ member.full_name }} and their login account? Their subjects will become unassigned.">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger"><i class="bi bi-trash"></i> Delete</button>
+        </form>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                {% if member.photo %}<img src="{{ member.photo.url }}" alt="Photo" class="profile-photo mb-3">{% else %}<div class="avatar-lg mx-auto mb-3">{{ member.full_name|first|upper }}</div>{% endif %}
+                <h2 class="h5 mb-0">{{ member.full_name }}</h2>
+                <p class="text-muted mb-0">{{ member.get_designation_display }}</p>
+            </div>
+            <ul class="list-group list-group-flush small">
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Employee ID</span><span>{{ member.employee_id }}</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Department</span><span>{{ member.department|default:"-" }}</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Qualification</span><span>{{ member.qualification|default:"-" }}</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Specialization</span><span>{{ member.specialization|default:"-" }}</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Email</span><span>{{ member.user.email|default:"-" }}</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Phone</span><span>{{ member.phone|default:"-" }}</span></li>
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Joined</span><span>{{ member.date_of_joining|date:"d M Y" }}</span></li>
+                <li class="list-group-item"><span class="text-muted">Address</span><div>{{ member.address|default:"-"|linebreaksbr }}</div></li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white"><strong>Subjects Taught</strong></div>
+            <div class="table-responsive">
+                <table class="table table-cms mb-0">
+                    <thead><tr><th>Code</th><th>Subject</th><th>Course</th><th>Semester</th><th>Credits</th></tr></thead>
+                    <tbody>
+                    {% for subject in subjects %}
+                        <tr><td>{{ subject.code }}</td><td>{{ subject.name }}</td><td><a href="{% url 'courses:detail' subject.course.pk %}">{{ subject.course.code }}</a></td><td>{{ subject.semester }}</td><td>{{ subject.credits }}</td></tr>
+                    {% empty %}
+                        <tr><td colspan="5" class="text-muted text-center">No subjects assigned. Assign subjects from the course page.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

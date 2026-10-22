@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+{# Shared by "Assign Fee" and "Record Payment" (when `fee` is in the context) #}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <a href="{% url 'fees:list' %}" class="small"><i class="bi bi-arrow-left"></i> Back to fees</a>
+        {% include "includes/page_header.html" with title=title icon="cash-stack" %}
+        {% if fee %}
+            <div class="card shadow-sm mb-3">
+                <div class="card-body d-flex flex-wrap justify-content-between gap-3">
+                    <div><div class="text-muted small">Fee</div><strong>{{ fee.get_fee_type_display }}</strong></div>
+                    <div><div class="text-muted small">Amount</div><strong>₹{{ fee.amount|intcomma }}</strong></div>
+                    <div><div class="text-muted small">Paid</div><strong class="text-success">₹{{ fee.paid_amount|intcomma }}</strong></div>
+                    <div><div class="text-muted small">Balance</div><strong class="text-danger">₹{{ fee.balance|intcomma }}</strong></div>
+                    <div><div class="text-muted small">Due</div><strong>{{ fee.due_date|date:"d M Y" }}</strong></div>
+                </div>
+            </div>
+        {% endif %}
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="post" novalidate class="needs-validation">
+                    {% csrf_token %}
+                    {% include "includes/form.html" with form=form %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary-cms"><i class="bi bi-save"></i> {% if fee %}Record Payment{% else %}Assign Fee{% endif %}</button>
+                        <a href="{% url 'fees:list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

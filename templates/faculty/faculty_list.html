@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Faculty{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    {% include "includes/page_header.html" with title="Faculty" icon="person-badge" subtitle=page_obj.paginator.count|stringformat:"d"|add:" member(s)" %}
+    <a href="{% url 'faculty:add' %}" class="btn btn-primary-cms"><i class="bi bi-person-plus"></i> Add Faculty</a>
+</div>
+
+<form method="get" class="card card-body shadow-sm mb-3 filter-bar">
+    <div class="row g-2">
+        <div class="col-md-6"><input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Search by name, employee ID or specialization"></div>
+        <div class="col-md-4">
+            <select name="department" class="form-select">
+                <option value="">All departments</option>
+                {% for d in departments %}<option value="{{ d.pk }}" {% if selected_department == d.pk|stringformat:"d" %}selected{% endif %}>{{ d.name }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button class="btn btn-primary-cms flex-fill"><i class="bi bi-search"></i> Filter</button>
+            <a href="{% url 'faculty:list' %}" class="btn btn-outline-secondary" title="Reset"><i class="bi bi-x-lg"></i></a>
+        </div>
+    </div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-cms table-hover mb-0 align-middle">
+            <thead><tr><th>Emp ID</th><th>Name</th><th>Department</th><th>Designation</th><th>Subjects</th><th>Email</th><th class="text-end">Actions</th></tr></thead>
+            <tbody>
+            {% for member in page_obj %}
+                <tr>
+                    <td class="fw-medium">{{ member.employee_id }}</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            {% if member.photo %}<img src="{{ member.photo.url }}" class="avatar-img me-2" alt="">{% else %}<span class="avatar-sm me-2">{{ member.full_name|first|upper }}</span>{% endif %}
+                            {{ member.full_name }}
+                        </div>
+                    </td>
+                    <td>{{ member.department|default:"-" }}</td>
+                    <td>{{ member.get_designation_display }}</td>
+                    <td><span class="badge bg-secondary">{{ member.num_subjects }}</span></td>
+                    <td>{{ member.user.email }}</td>
+                    <td class="text-end text-nowrap">
+                        <a href="{% url 'faculty:detail' member.pk %}" class="btn btn-sm btn-outline-primary" title="View"><i class="bi bi-eye"></i></a>
+                        <a href="{% url 'faculty:edit' member.pk %}" class="btn btn-sm btn-outline-secondary" title="Edit"><i class="bi bi-pencil"></i></a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="7" class="text-center text-muted py-4">No faculty members found.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% include "includes/pagination.html" %}
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <div>
+        <h1 class="h3 mb-0">Admin Dashboard</h1>
+        <p class="text-muted mb-0">Welcome, {{ user.display_name }} &middot; {% now "l, d F Y" %}</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'students:add' %}" class="btn btn-primary-cms btn-sm"><i class="bi bi-person-plus"></i> Add Student</a>
+        <a href="{% url 'faculty:add' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-person-plus"></i> Add Faculty</a>
+        <a href="{% url 'notices:add' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-megaphone"></i> Post Notice</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3">
+        <a href="{% url 'students:list' %}" class="dash-card dash-blue">
+            <div><div class="dash-value" data-count="{{ student_count }}">{{ student_count }}</div><div class="dash-label">Students</div></div>
+            <i class="bi bi-mortarboard"></i>
+        </a>
+    </div>
+    <div class="col-6 col-xl-3">
+        <a href="{% url 'faculty:list' %}" class="dash-card dash-green">
+            <div><div class="dash-value" data-count="{{ faculty_count }}">{{ faculty_count }}</div><div class="dash-label">Faculty</div></div>
+            <i class="bi bi-person-badge"></i>
+        </a>
+    </div>
+    <div class="col-6 col-xl-3">
+        <a href="{% url 'courses:list' %}" class="dash-card dash-purple">
+            <div><div class="dash-value">{{ course_count }} / {{ subject_count }}</div><div class="dash-label">Courses / Subjects</div></div>
+            <i class="bi bi-journal-bookmark"></i>
+        </a>
+    </div>
+    <div class="col-6 col-xl-3">
+        <a href="{% url 'attendance:list' %}" class="dash-card dash-orange">
+            <div><div class="dash-value">{{ present_today }} / {{ attendance_today }}</div><div class="dash-label">Present Today</div></div>
+            <i class="bi bi-calendar-check"></i>
+        </a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Total Fees Assigned</div><div class="h4 mb-0">₹{{ total_fees|floatformat:2|intcomma }}</div></div></div></div>
+    <div class="col-md-4"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Collected</div><div class="h4 mb-0 text-success">₹{{ collected|floatformat:2|intcomma }}</div></div></div></div>
+    <div class="col-md-4"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Pending</div><div class="h4 mb-0 text-danger">₹{{ pending|floatformat:2|intcomma }}</div></div></div></div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white"><strong>Students per Course</strong></div>
+            <div class="card-body">
+                {% if chart_data.labels %}
+                    <canvas id="courseChart" height="220"></canvas>
+                {% else %}
+                    <p class="text-muted mb-0">Add courses and students to see this chart.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white d-flex justify-content-between"><strong>Recently Added Students</strong><a href="{% url 'students:list' %}" class="small">View all</a></div>
+            <div class="table-responsive">
+                <table class="table table-cms mb-0">
+                    <thead><tr><th>Roll No</th><th>Name</th><th>Course</th><th>Sem</th></tr></thead>
+                    <tbody>
+                    {% for s in recent_students %}
+                        <tr><td>{{ s.roll_number }}</td><td><a href="{% url 'students:detail' s.pk %}">{{ s.full_name }}</a></td><td>{{ s.course.code|default:"-" }}</td><td>{{ s.semester }}</td></tr>
+                    {% empty %}
+                        <tr><td colspan="4" class="text-muted text-center">No students yet.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white d-flex justify-content-between"><strong>Recent Payments</strong><a href="{% url 'fees:payments' %}" class="small">View all</a></div>
+            <ul class="list-group list-group-flush">
+                {% for p in recent_payments %}
+                    <li class="list-group-item d-flex justify-content-between">
+                        <div><a href="{% url 'fees:receipt' p.pk %}">{{ p.receipt_number }}</a><div class="small text-muted">{{ p.fee.student.full_name }} &middot; {{ p.payment_date|date:"d M" }}</div></div>
+                        <span class="fw-semibold text-success">₹{{ p.amount|intcomma }}</span>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-muted">No payments recorded.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white d-flex justify-content-between"><strong>Upcoming Exams</strong><a href="{% url 'examinations:list' %}?show=upcoming" class="small">View all</a></div>
+            <ul class="list-group list-group-flush">
+                {% for exam in upcoming_exams %}
+                    <li class="list-group-item"><strong>{{ exam.name }}</strong> &middot; {{ exam.subject.code }}<div class="small text-muted">{{ exam.date|date:"D, d M Y" }} ({{ exam.date|naturalday }})</div></li>
+                {% empty %}
+                    <li class="list-group-item text-muted">No upcoming exams.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white d-flex justify-content-between"><strong>Notices</strong><a href="{% url 'notices:list' %}" class="small">View all</a></div>
+            <ul class="list-group list-group-flush">
+                {% for notice in notices %}
+                    <li class="list-group-item"><a href="{% url 'notices:detail' notice.pk %}">{{ notice.title }}</a>{% if notice.is_important %} <span class="badge bg-danger">!</span>{% endif %}<div class="small text-muted">{{ notice.get_audience_display }} &middot; {{ notice.created_at|naturaltime }}</div></li>
+                {% empty %}
+                    <li class="list-group-item text-muted">No notices.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{{ chart_data|json_script:"course-chart-data" }}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% load static %}<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

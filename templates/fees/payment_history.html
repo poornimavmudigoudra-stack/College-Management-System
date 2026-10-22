@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Payment History{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    {% include "includes/page_header.html" with title="Payment History" icon="clock-history" %}
+    <div class="text-end"><div class="text-muted small">Total received</div><div class="h5 mb-0 text-success">₹{{ total|floatformat:2|intcomma }}</div></div>
+</div>
+
+{% if not user.is_student %}
+<form method="get" class="card card-body shadow-sm mb-3 filter-bar">
+    <div class="row g-2">
+        <div class="col-md-10"><input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Search by receipt no, transaction ID, student name or roll number"></div>
+        <div class="col-md-2 d-flex gap-2">
+            <button class="btn btn-primary-cms flex-fill"><i class="bi bi-search"></i></button>
+            <a href="{% url 'fees:payments' %}" class="btn btn-outline-secondary" title="Reset"><i class="bi bi-x-lg"></i></a>
+        </div>
+    </div>
+</form>
+{% endif %}
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-cms table-hover mb-0 align-middle">
+            <thead><tr><th>Receipt No</th><th>Date</th>{% if not user.is_student %}<th>Student</th>{% endif %}<th>Fee</th><th>Method</th><th class="text-end">Amount</th><th></th></tr></thead>
+            <tbody>
+            {% for p in page_obj %}
+                <tr>
+                    <td class="fw-medium">{{ p.receipt_number }}</td>
+                    <td>{{ p.payment_date|date:"d M Y" }}</td>
+                    {% if not user.is_student %}<td>{{ p.fee.student.full_name }} <span class="small text-muted">({{ p.fee.student.roll_number }})</span></td>{% endif %}
+                    <td>{{ p.fee.get_fee_type_display }}</td>
+                    <td>{{ p.get_method_display }}{% if p.transaction_id %}<div class="small text-muted">{{ p.transaction_id }}</div>{% endif %}</td>
+                    <td class="text-end text-success fw-medium">₹{{ p.amount|intcomma }}</td>
+                    <td class="text-end"><a href="{% url 'fees:receipt' p.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-receipt"></i> Receipt</a></td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="7" class="text-center text-muted py-4">No payments found.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% include "includes/pagination.html" %}
+{% endblock %}

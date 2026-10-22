@@ -1,0 +1,4 @@
+{% with status=fee.status %}
+    <span class="badge {% if status == 'Paid' %}bg-success{% elif status == 'Partial' %}bg-warning text-dark{% else %}bg-danger{% endif %}">{{ status }}</span>
+    {% if fee.is_overdue %}<span class="badge bg-dark">Overdue</span>{% endif %}
+{% endwith %}
