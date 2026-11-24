@@ -43,7 +43,7 @@ def student_list(request):
         "q": q,
         "selected_course": course_id,
         "selected_semester": semester,
-        "semesters": range(1, 13),
+        "semesters": range(1, 9),
         "querystring": params.urlencode(),
     }
     return render(request, "students/student_list.html", context)
